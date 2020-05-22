@@ -9,6 +9,13 @@
 #define INF 99999
 
 using namespace std;
+enum selection
+{
+    initialize,
+    printDMap,
+    printField,
+    endPogram
+};
 struct point
 {
     int x;
@@ -19,27 +26,47 @@ vector < vector < pair<char,int> > > graph;
 void setcolor(unsigned short color);
 void gotoxy(int x, int y);
 
+selection RequestToAction();
 void InitializeWin(int* n, int* m, point* start, point* finish);
 void PrintField(int n, int m);
 void PrintDijkstraMap(int n, int m);
 
+void StartAlgorithms(int &n, int &m, point start, point finish);
 void CalculateDistance(int n, int m, point start);
 void SetNextNode(point next, point current);
 void FindPath(int n, int m, point finish);
 
 int main()
 {
-
     int n, m;
-    point start{9, 7};
-    point finish{5,5};
+    point start;
+    point finish;
+    selection chose = initialize;
+    while(chose != endPogram)
+    {
+        switch(chose)
+        {
+        case initialize:
+            StartAlgorithms(n, m, start, finish);
+        case printField:
+            PrintField(n, m);
+            break;
+        case printDMap:
+            PrintDijkstraMap(n, m);
+            break;
+        case endPogram:
+            return 0;
+        }
+        chose = RequestToAction();
+    }
+}
 
+void StartAlgorithms(int &n, int &m, point start, point finish)
+{
     InitializeWin(&n, &m, &start, &finish);
     PrintField(n, m);
     CalculateDistance(n, m, start);
     FindPath(n, m, finish);
-
-    PrintField(n, m);
 }
 
 void CalculateDistance(int n, int m, point start)
@@ -48,7 +75,6 @@ void CalculateDistance(int n, int m, point start)
     frontier.push(start);
     graph[start.y][start.x].second = 0;
     point temp;
-
     while(!frontier.empty())
     {
         temp = frontier.front();
@@ -97,7 +123,6 @@ void SetNextNode(point next, point current)
     gotoxy(5*(next.x+1), (next.y+1));
     setcolor(1);
     cout << graph[next.y][next.x].second;
-
 }
 
 void FindPath(int n, int m, point finish)
@@ -168,8 +193,10 @@ void PrintDijkstraMap(int n, int m)
 
 void InitializeWin(int* n, int* m, point* start, point* finish)
 {
+    system("cls");
     cout << "sizes(x, y):";
     cin >> *m >> *n;
+    graph.clear();
     graph.resize(*n,vector< pair<char,int> >(*m,make_pair(' ', INF)));
     do
     {
@@ -179,13 +206,36 @@ void InitializeWin(int* n, int* m, point* start, point* finish)
         cin >> finish->x >> finish->y;
     }
     while((start->x<=0 || start->y  <=0)||
-            (finish->x <=0 || finish->y <=0)||
-            (start->x  >*m || start->y  >*n)||
-            (finish->x >*m || finish->y >*n));
+        (finish->x <=0 || finish->y <=0)||
+        (start->x  >*m || start->y  >*n)||
+        (finish->x >*m || finish->y >*n));
     start->x--;
     start->y--;
     finish->y--;
     finish->x--;
+}
+
+selection RequestToAction()
+{
+    int t;
+    cout << "Choose action:" << endl;
+    cout << "1: New Example" << endl;
+    cout << "2: Print Field" << endl;
+    cout << "3: Print Dijkstra Map" << endl;
+    cout << "4: Exit" << endl;
+    do
+    {
+        cin >> t;
+        switch(t)
+        {
+        case 1: return initialize;
+        case 2: return printField;
+        case 3: return printDMap;
+        case 4: return endPogram;
+        default:
+            cout << "Error. Please, repeat:";
+        }
+    }while(true);
 }
 
 void setcolor(unsigned short color)
