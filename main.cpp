@@ -127,19 +127,23 @@ void SetNextNode(point next, point current)
 
 void FindPath(int n, int m, point finish)
 {
+    setcolor(7);
     point temp{finish.x, finish.y};
     graph[temp.y][temp.x].first = '@';
     while(graph[temp.y][temp.x].second != 0)
     {
-        if(graph[temp.y-1][temp.x].second <= graph[temp.y][temp.x].second)
+        if(temp.y >0 && graph[temp.y-1][temp.x].second <= graph[temp.y][temp.x].second)
             temp.y--;
-        if(graph[temp.y+1][temp.x].second <= graph[temp.y][temp.x].second)
+        else if(temp.y <n-1 && graph[temp.y+1][temp.x].second <= graph[temp.y][temp.x].second)
             temp.y++;
-        if(graph[temp.y][temp.x-1].second <= graph[temp.y][temp.x].second)
+        else if(temp.x >0 && graph[temp.y][temp.x-1].second <= graph[temp.y][temp.x].second)
             temp.x--;
-        if(graph[temp.y][temp.x+1].second <= graph[temp.y][temp.x].second)
+        else if(temp.x <m-1 && graph[temp.y][temp.x+1].second <= graph[temp.y][temp.x].second)
             temp.x++;
         graph[temp.y][temp.x].first = '@';
+        gotoxy(5*(temp.x+1), (temp.y+1));
+        cout << graph[temp.y][temp.x].second;
+        Sleep(20);
     }
 }
 
@@ -194,8 +198,14 @@ void PrintDijkstraMap(int n, int m)
 void InitializeWin(int* n, int* m, point* start, point* finish)
 {
     system("cls");
-    cout << "sizes(x, y):";
-    cin >> *m >> *n;
+    cout << "create rectangle\n";
+    do
+    {
+        cout << "sizes(x <=40, y <= 40):";
+        cin >> *m >> *n;
+    }
+    while(*m<=0 ||*n <=0||
+         (*m>40 ||*n >40));
     graph.clear();
     graph.resize(*n,vector< pair<char,int> >(*m,make_pair(' ', INF)));
     do
@@ -228,14 +238,19 @@ selection RequestToAction()
         cin >> t;
         switch(t)
         {
-        case 1: return initialize;
-        case 2: return printField;
-        case 3: return printDMap;
-        case 4: return endPogram;
+        case 1:
+            return initialize;
+        case 2:
+            return printField;
+        case 3:
+            return printDMap;
+        case 4:
+            return endPogram;
         default:
             cout << "Error. Please, repeat:";
         }
-    }while(true);
+    }
+    while(true);
 }
 
 void setcolor(unsigned short color)
