@@ -5,6 +5,10 @@
 #include <queue>
 #include <iomanip>
 #include <windows.h>
+#include <fstream>
+#include <string>
+
+#include "Field.h"
 
 #define INF 99999
 
@@ -22,7 +26,7 @@ struct point
     int y;
 };
 vector < vector < pair<char,int> > > graph;
-
+int sizeCell;
 void setcolor(unsigned short color);
 void gotoxy(int x, int y);
 
@@ -36,12 +40,15 @@ void CalculateDistance(int n, int m, point start);
 void SetNextNode(point next, point current);
 void FindPath(int n, int m, point finish);
 
+void ImportFromFile(int* n, int* m, point* start, point* finish);
+
 int main()
 {
     int n, m;
     point start;
     point finish;
     selection chose = initialize;
+    sizeCell = 5;
     while(chose != endPogram)
     {
         switch(chose)
@@ -63,7 +70,7 @@ int main()
 
 void StartAlgorithms(int &n, int &m, point start, point finish)
 {
-    InitializeWin(&n, &m, &start, &finish);
+    ImportFromFile(&n, &m, &start, &finish);
     PrintField(n, m);
     CalculateDistance(n, m, start);
     FindPath(n, m, finish);
@@ -79,9 +86,9 @@ void CalculateDistance(int n, int m, point start)
     {
         temp = frontier.front();
         frontier.pop();
-        gotoxy(5*(temp.x+1),(temp.y+1));
+        gotoxy(sizeCell*(temp.x+1),(temp.y+1));
         setcolor(2);
-        cout << graph[temp.y][temp.x].second;
+        cout << graph[temp.y][temp.x].first;
 
         if(temp.y-1 >= 0
                 && graph[temp.y-1][temp.x].second == INF
@@ -120,9 +127,9 @@ void SetNextNode(point next, point current)
     graph[next.y][next.x].second = graph[current.y][current.x].second + 1;
     graph[next.y][next.x].first = '.';
 
-    gotoxy(5*(next.x+1), (next.y+1));
+    gotoxy(sizeCell*(next.x+1), (next.y+1));
     setcolor(1);
-    cout << graph[next.y][next.x].second;
+    cout << graph[next.y][next.x].first;
 }
 
 void FindPath(int n, int m, point finish)
@@ -141,8 +148,8 @@ void FindPath(int n, int m, point finish)
         else if(temp.x <m-1 && graph[temp.y][temp.x+1].second <= graph[temp.y][temp.x].second)
             temp.x++;
         graph[temp.y][temp.x].first = '@';
-        gotoxy(5*(temp.x+1), (temp.y+1));
-        cout << graph[temp.y][temp.x].second;
+        gotoxy(sizeCell*(temp.x+1), (temp.y+1));
+        cout << graph[temp.y][temp.x].first;
         Sleep(20);
     }
 }
@@ -152,18 +159,18 @@ void PrintField(int n, int m)
     system("cls");
     setcolor(7);
     for(int i = 0; i <= m; i++)
-        cout << setw(5) << left << i;
+        cout << setw(sizeCell) << left << (i)%10;
     cout << endl;
     for(int i = 0; i < n; i++)
     {
-        cout << setw(5) << left << i+1;
+        cout << setw(sizeCell) << left << (i+1)%10;
         for(int j = 0; j < m; j++)
         {
             if(graph[i][j].first == '.')
                 setcolor(2);
             else if(graph[i][j].first == '#')
                 setcolor(3);
-            cout << setw(5) << left << graph[i][j].first;
+            cout << setw(sizeCell) << left << graph[i][j].first;
             setcolor(7);
         }
         cout << endl;
@@ -176,18 +183,18 @@ void PrintDijkstraMap(int n, int m)
     system("cls");
     setcolor(7);
     for(int i = 0; i <= m; i++)
-        cout << setw(5) << left << i;
+        cout << setw(sizeCell) << left << (i)%10;
     cout << endl;
     for(int i = 0; i < n; i++)
     {
-        cout << setw(5) << left << i+1;
+        cout << setw(sizeCell) << left << (i+1)%10;
         for(int j = 0; j < m; j++)
         {
             if(graph[i][j].first == '.')
                 setcolor(2);
             else if(graph[i][j].first == '#')
                 setcolor(3);
-            cout << setw(5) << left << graph[i][j].second;
+            cout << setw(sizeCell) << left << graph[i][j].second;
             setcolor(7);
         }
         cout << endl;
@@ -219,6 +226,31 @@ void InitializeWin(int* n, int* m, point* start, point* finish)
         (finish->x <=0 || finish->y <=0)||
         (start->x  >*m || start->y  >*n)||
         (finish->x >*m || finish->y >*n));
+    start->x--;
+    start->y--;
+    finish->y--;
+    finish->x--;
+}
+
+void ImportFromFile(int* n, int* m, point* start, point* finish)
+{
+    sizeCell = 1;
+    Field file("map1");
+    file.InitializationMap(&graph, *n, *m);
+    PrintField(*n, *m);
+    cout << "size(x, y): " << *m << ' ' << *n << endl;
+    do
+    {
+        cout << "start(x, y) : ";
+        cin >> start->x >> start->y;
+        cout << "finish(x, y): ";
+        cin >> finish->x >> finish->y;
+    }
+    while((start->x<=0 || start->y  <=0)||
+        (finish->x <=0 || finish->y <=0)||
+        (start->x  >*m || start->y  >*n)||
+        (graph[start->y-1][start->x-1].first  =='#')||
+        (graph[finish->y-1][finish->x-1].first=='#'));
     start->x--;
     start->y--;
     finish->y--;
