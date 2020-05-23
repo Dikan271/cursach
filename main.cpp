@@ -15,10 +15,11 @@
 using namespace std;
 enum selection
 {
-    initialize,
     printDMap,
     printField,
-    endPogram
+    endPogram,
+    file,
+    rectangle
 };
 struct point
 {
@@ -31,35 +32,39 @@ void setcolor(unsigned short color);
 void gotoxy(int x, int y);
 
 selection RequestToAction();
+void ImportFromFile(int* n, int* m, point* start, point* finish);
 void InitializeWin(int* n, int* m, point* start, point* finish);
+void SetControlPoint(int* n, int* m, point* start, point* finish);
 void PrintField(int n, int m);
 void PrintDijkstraMap(int n, int m);
 
-void StartAlgorithms(int &n, int &m, point start, point finish);
+void StartAlgorithms(int &n, int &m, point start, point finish, selection mode);
 void CalculateDistance(int n, int m, point start);
 void SetNextNode(point next, point current);
 void FindPath(int n, int m, point finish);
-
-void ImportFromFile(int* n, int* m, point* start, point* finish);
 
 int main()
 {
     int n, m;
     point start;
     point finish;
-    selection chose = initialize;
+    selection chose = rectangle;
     sizeCell = 5;
     while(chose != endPogram)
     {
         switch(chose)
         {
-        case initialize:
-            StartAlgorithms(n, m, start, finish);
+        case file:
+        case rectangle:
+            StartAlgorithms(n, m, start, finish, chose);
         case printField:
             PrintField(n, m);
             break;
         case printDMap:
-            PrintDijkstraMap(n, m);
+            if(sizeCell >= 5)
+                PrintDijkstraMap(n, m);
+            else
+                cout << "impossible to print DM, because a very small cell size" << endl;
             break;
         case endPogram:
             return 0;
@@ -68,9 +73,12 @@ int main()
     }
 }
 
-void StartAlgorithms(int &n, int &m, point start, point finish)
+void StartAlgorithms(int &n, int &m, point start, point finish, selection mode)
 {
-    ImportFromFile(&n, &m, &start, &finish);
+    if(mode == file)
+        ImportFromFile(&n, &m, &start, &finish);
+    if(mode == rectangle)
+        InitializeWin(&n, &m, &start, &finish);
     PrintField(n, m);
     CalculateDistance(n, m, start);
     FindPath(n, m, finish);
@@ -82,6 +90,7 @@ void CalculateDistance(int n, int m, point start)
     frontier.push(start);
     graph[start.y][start.x].second = 0;
     point temp;
+    bool toSleep = n+m <= 50;
     while(!frontier.empty())
     {
         temp = frontier.front();
@@ -118,7 +127,8 @@ void CalculateDistance(int n, int m, point start)
             frontier.push({temp.x+1, temp.y});
             SetNextNode({temp.x+1, temp.y}, temp);
         }
-        Sleep(10);
+        if(toSleep)
+            Sleep(10);
     }
 }
 
@@ -215,21 +225,7 @@ void InitializeWin(int* n, int* m, point* start, point* finish)
          (*m>40 ||*n >40));
     graph.clear();
     graph.resize(*n,vector< pair<char,int> >(*m,make_pair(' ', INF)));
-    do
-    {
-        cout << "start(x, y) : ";
-        cin >> start->x >> start->y;
-        cout << "finish(x, y): ";
-        cin >> finish->x >> finish->y;
-    }
-    while((start->x<=0 || start->y  <=0)||
-        (finish->x <=0 || finish->y <=0)||
-        (start->x  >*m || start->y  >*n)||
-        (finish->x >*m || finish->y >*n));
-    start->x--;
-    start->y--;
-    finish->y--;
-    finish->x--;
+    SetControlPoint(n, m, start, finish);
 }
 
 void ImportFromFile(int* n, int* m, point* start, point* finish)
@@ -237,6 +233,11 @@ void ImportFromFile(int* n, int* m, point* start, point* finish)
     sizeCell = 1;
     Field file("map1");
     file.InitializationMap(&graph, *n, *m);
+    SetControlPoint(n, m, start, finish);
+}
+
+void SetControlPoint(int* n, int* m, point* start, point* finish)
+{
     PrintField(*n, *m);
     cout << "size(x, y): " << *m << ' ' << *n << endl;
     do
@@ -260,24 +261,34 @@ void ImportFromFile(int* n, int* m, point* start, point* finish)
 selection RequestToAction()
 {
     int t;
-    cout << "Choose action:" << endl;
-    cout << "1: New Example" << endl;
-    cout << "2: Print Field" << endl;
-    cout << "3: Print Dijkstra Map" << endl;
-    cout << "4: Exit" << endl;
+    cout<< "Choose action:" << endl
+        << "1: New Example" << endl
+        << "2: Print Field" << endl
+        << "3: Print Dijkstra Map" << endl
+        << "4: Exit" << endl;
     do
     {
         cin >> t;
         switch(t)
         {
-        case 1:
-            return initialize;
         case 2:
             return printField;
         case 3:
             return printDMap;
         case 4:
             return endPogram;
+
+        case 1:
+            {
+                cout<< "Choose source:" << endl
+                    << "1: Import from file" <<endl
+                    << "2: Create clear rectangle" << endl;
+                cin >> t;
+                if(t == 1)
+                    return file;
+                if(t == 2)
+                    return rectangle;
+            }
         default:
             cout << "Error. Please, repeat:";
         }
