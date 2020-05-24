@@ -13,14 +13,10 @@ class Field
 {
 public:
 	Field();
-	Field(string nameMap);
     void InitializationMap(vector < vector < pair<char,int> > > *graph, int &n_out, int &m_out);
-	void SetLocation(string nameMap);
-	void Print();
 private:
 	int height;
 	int width;
-	string nameLocation;
 	void GetSize(string txt_Location, int &n_out, int &m_out);
 	string GetTextFromFile();
 };
