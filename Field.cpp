@@ -3,24 +3,24 @@
 Field::Field()
 {
 }
-//метод инициализирует поле
+//Г¬ГҐГІГ®Г¤ ГЁГ­ГЁГ¶ГЁГ Г«ГЁГ§ГЁГ°ГіГҐГІ ГЇГ®Г«ГҐ
 void Field::InitializationMap(vector < vector < pair<char,int> > > *graph, int &n_out, int &m_out)
 {
-	string text = GetTextFromFile();    //сичтывается текст из файла
-    GetSize(text, n_out, m_out);        // поиск размеров поля
-    graph->clear();                     //если граф использовался ранее, нужно его очистить
-    graph->resize(n_out, vector< pair<char,int> >(m_out, make_pair(' ', 99999)));
+	string text = GetTextFromFile();    //Г±ГЁГ·ГІГ»ГўГ ГҐГІГ±Гї ГІГҐГЄГ±ГІ ГЁГ§ ГґГ Г©Г«Г 
+    GetSize(text, n_out, m_out);        // ГЇГ®ГЁГ±ГЄ Г°Г Г§Г¬ГҐГ°Г®Гў ГЇГ®Г«Гї
+    graph->clear();                     //ГҐГ±Г«ГЁ ГЈГ°Г Гґ ГЁГ±ГЇГ®Г«ГјГ§Г®ГўГ Г«Г±Гї Г°Г Г­ГҐГҐ, Г­ГіГ¦Г­Г® ГҐГЈГ® Г®Г·ГЁГ±ГІГЁГІГј
+    graph->resize(n_out, vector< pair<char,int> >(m_out+1, make_pair(' ', 99999)));
 	int iter = 0;
 	for (int i = 0; i < n_out; i++)
 	{
 		for (int j = 0; j <= m_out; j++, iter++)
-		{   //заполнение графа
+		{   //Г§Г ГЇГ®Г«Г­ГҐГ­ГЁГҐ ГЈГ°Г ГґГ 
 			(*graph)[i][j].first = text[iter];
 		}
 	}
 }
 
-//метод считывает из текст из файла
+//Г¬ГҐГІГ®Г¤ Г±Г·ГЁГІГ»ГўГ ГҐГІ ГЁГ§ ГІГҐГЄГ±ГІ ГЁГ§ ГґГ Г©Г«Г 
 string Field::GetTextFromFile()
 {
 	string txt;
@@ -33,7 +33,7 @@ string Field::GetTextFromFile()
 	return txt;
 }
 
-//метод считает размеры поля
+//Г¬ГҐГІГ®Г¤ Г±Г·ГЁГІГ ГҐГІ Г°Г Г§Г¬ГҐГ°Г» ГЇГ®Г«Гї
 void Field::GetSize(string txt_Location, int &n_out, int &m_out)
 {
 	int heigth = 0;
